@@ -17,7 +17,7 @@ def staging_table():
     conn,cur = None,None
 
     try:
-        conn, cur = get_con_cursor()
+        cur, conn = get_con_cursor()
 
         YT_data = load_data()
         
@@ -32,9 +32,9 @@ def staging_table():
 
             else:
                 if row['video_id'] not in table_ids:
-                    update_rows(cur, conn, schema, row)
-                else:
                     insert_rows(cur, conn, schema, row)
+                else:
+                    update_rows(cur, conn, schema, row)
         ids_in_json = [row['video_id'] for row in YT_data]
 
         ids_to_delete = set(table_ids) - set(ids_in_json)
@@ -60,7 +60,7 @@ def core_table():
     conn,cur = None,None
 
     try:
-        conn, cur = get_con_cursor()
+        cur, conn = get_con_cursor()
 
         create_schema(schema)
         create_table(schema)
