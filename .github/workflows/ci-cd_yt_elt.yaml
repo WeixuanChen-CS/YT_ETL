@@ -84,9 +84,12 @@ jobs:
           run: docker compose up -d
         - name: Wait for all DAGs to be registered
           run: |
-            until docker exec airflow-worker airflow dags list | grep -q "data_quality"; do
-            echo "Waiting for DAGs to be registered..."
-            sleep 5
+            for dag in produce_json update_db data_quality; do
+            until docker exec airflow-worker airflow dags details $dag > /dev/null 2>&1; do
+            echo "Waiting for $dag to be registered..."
+            sleep 10
+            done
+            echo "$dag is registered!"
             done
         - name: Run Unit and Integration Tests
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
